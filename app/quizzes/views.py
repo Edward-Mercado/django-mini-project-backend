@@ -1,8 +1,17 @@
-from django.shortcuts import render
+from django.contrib.auth.models import Group, User
+from .models import Quiz
+from rest_framework import permissions, viewsets
+
 from django.http import HttpResponse
 
-# Create your views here.
-# views are basically just api endpoints
+from .serializers import QuizSerializer
 
-def index(request):
-    return HttpResponse("Hellooooo worldddd")
+# views are basically just api endpoints
+    
+class QuizViewSet(viewsets.ModelViewSet):
+    queryset = Quiz.objects.all().order_by("name")
+    serializer_class = QuizSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+def index(request): 
+    return HttpResponse("Hello World")
