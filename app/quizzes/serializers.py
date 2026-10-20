@@ -7,4 +7,4 @@ from rest_framework import serializers
 class QuizSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Quiz,
-        fields = ['id', 'name', 'due_date', 'teacher', 'questions']
+        fields = ['id', 'name', 'teacher', 'questions']

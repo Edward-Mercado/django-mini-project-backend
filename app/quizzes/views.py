@@ -13,5 +13,7 @@ class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    # bundles all of the http methods into one view "set"
+    
 def index(request): 
     return HttpResponse("Hello World")

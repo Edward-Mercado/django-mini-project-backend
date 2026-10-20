@@ -5,7 +5,6 @@ from django.utils import timezone
 
 class Quiz(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
-    due_date = models.DateTimeField()
-    teacher = models.ForeignKey("users.") #FIX THIS LATER
+    teacher = models.ForeignKey("users.CustomUser") 
     
     questions = models.ManyToManyField("questions.Question", related_name="quizzes", blank=True)
