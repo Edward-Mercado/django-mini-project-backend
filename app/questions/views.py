@@ -6,6 +6,6 @@ from rest_framework import permissions, viewsets
 # Create your views here.
 
 class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all().order_by("name")
+    queryset = Question.objects.all().order_by("id")
     serializer_class = QuestionSerializer
     permission_classes = [permissions.IsAuthenticated]

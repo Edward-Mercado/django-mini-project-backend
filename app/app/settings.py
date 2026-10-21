@@ -17,7 +17,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10
+    "PAGE_SIZE": 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 } #controls how many objects per page are returned
 
 # Quick-start development settings - unsuitable for production
@@ -31,6 +34,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "users.CustomUser"
 
 # Application definition
 
@@ -41,7 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework_simplejwt',
+    
+    'users',
+    'questions',
+    'quizzes'
 ]
 
 MIDDLEWARE = [
