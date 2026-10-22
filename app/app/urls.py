@@ -24,9 +24,9 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    path("quizzes/", include("quizzes.urls")), # includes the paths from polls when polls/ is used
-    path("users/", include("users.urls")),
-    path("questions/", include("questions.urls")),
+    path("api/quizzes/", include("quizzes.urls")), # includes the paths from polls when polls/ is used
+    path("api/users/", include("users.urls")),
+    path("api/questions/", include("questions.urls")),
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
