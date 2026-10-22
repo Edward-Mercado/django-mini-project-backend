@@ -8,10 +8,10 @@ from django.utils.translation import gettext_lazy as _
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
     USER_TYPE_CHOICES = [
-        (0, "Student"),
-        (1, "Teacher"),
-        (2, "Admin"),
-        (3, "Superuser"),
+        ("STUDENT", "Student"),
+        ("TEACHER", "Teacher"),
+        ("ADMIN", "Admin"),
+        ("SUPERUSER", "Superuser"),
     ]
     
-    user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES)
+    user_type = models.CharField(choices=USER_TYPE_CHOICES, max_length=9)

@@ -7,6 +7,7 @@ class Question(models.Model):
         ("FRQ", "Free Response Question"),
         ("MCQ", "Multiple Choice Question"),
     ]
+    name = models.CharField(max_length=100)
     
     description = models.TextField(null=True, blank=True) 
     # description is nullable, and the validation forms can accept it as blank
