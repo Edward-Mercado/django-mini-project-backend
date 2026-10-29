@@ -1,67 +1,105 @@
 from django.test import TestCase
-
-# Create your tests here.
+from django.urls import reverse
 
 from quizzes.models import Quiz
+from questions.models import Question
 from users.models import CustomUser
+
+from rest_framework.test import APIRequestFactory, APIClient, force_authenticate
 from quizzes.views import QuizViewSet
-from rest_framework.test import APIRequestFactory
-from rest_framework.reverse import reverse
+
+# REWRITE ENTIRETY OF THIS TONIGHT
 
 class QuizTestCase(TestCase):
     def setUp(self):
-        sample_user = CustomUser.objects.create(
-            email='example_user@example.com', 
-            user_type="TEACHER", 
-            password='example_password'
+        self.test_user = CustomUser.objects.create_user(
+            username="example_user",
+            email="example_user@example.com",
+            user_type="TEACHER",
+            password="example_password",
         )
-        self.test_quiz = Quiz.objects.create(name="TestQuiz", teacher=sample_user) 
-        self.factory = APIRequestFactory()
-        self.view = QuizViewSet.as_view(actions={
-            'get': 'retrieve',
-            'put': 'update',
-            'patch': 'partial_update',
-            'delete': 'destroy',
-        })
 
-        # creates a sample object
-        
+        self.test_quiz = Quiz.objects.create(
+            name="TestQuiz",
+            teacher=self.test_user,
+        )
+
+        self.test_question = Question.objects.create(
+            name="Test Question",
+            question="What is 2 + 2?",
+            question_type="MCQ",
+            correct_answer="4",
+            incorrect_answers=["1", "2", "3"],
+        )
+
+        self.test_quiz.questions.add(self.test_question)
+
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+
+        self.view = QuizViewSet.as_view(
+            actions={
+                "get": "retrieve",
+                "put": "update",
+                "patch": "partial_update",
+                "delete": "destroy",
+            }
+        )
+
     def test_get_quiz(self):
-        request = self.factory.get(reverse('quiz-detail', args=(self.test_quiz.pk,)))
-        # creates an HTTP request
-        response = self.view(request)
-        # runs the request
+        request = self.factory.get(reverse('quizzes-detail', args=(self.test_quiz.pk,)))
+        force_authenticate(request, user=self.test_user)
+        response = self.view(request, pk=self.test_quiz.pk)
         self.assertEqual(response.status_code, 200)
-        # assertEqual(expected, actual) ensures that your actual outcome is the same as expected
-        # 200 is "good, data returned"
-        
+    
     def test_get_all_quiz(self):
-        response = self.client.get(reverse('quiz-list'), {'name': 'Basic Test Quiz'}, format='json')
+        self.client.force_authenticate(user=self.test_user)
+        response = self.client.get(reverse('quizzes-list'), format='json')
         self.assertEqual(response.status_code, 200)
-        
+
     def test_delete_quiz(self):
-        request = self.factory.delete(reverse('quiz-detail', args=(self.test_quiz.pk,)))
-        response = self.view(request)
+        request = self.factory.delete(reverse('quizzes-detail', args=(self.test_quiz.pk,)))
+        force_authenticate(request, user=self.test_user)
+        response = self.view(request, pk=self.test_quiz.pk)
         self.assertEqual(response.status_code, 204)
-        # 204 means "good, no data to send back" (because we deleted it)
-        
+
     def test_patch_quiz(self):
-        request = self.factory.patch(reverse('quiz-detail', args=(self.test_quiz.pk,)))
-        response = self.view(request)
+        request = self.factory.patch(
+            reverse('quizzes-detail', args=(self.test_quiz.pk,)),
+            {'name': 'Updated Quiz Name'},    
+            format='json'
+        )
+        force_authenticate(request, user=self.test_user)
+        response = self.view(request, pk=self.test_quiz.pk)
         self.assertEqual(response.status_code, 200)
         
     def test_put_quiz(self):
-        request = self.factory.put(reverse('quiz-detail', args=(self.test_quiz.pk,)))
-        response = self.view(request)
+        request = self.factory.put(
+            reverse('quizzes-detail', args=(self.test_quiz.pk,)),
+            {
+                "name": "TestQuiz",
+                "teacher": self.test_user.pk,
+                'questions': []
+            },
+            format='json'
+        )
+        force_authenticate(request, user=self.test_user)
+        response = self.view(request, pk=self.test_quiz.pk)
         self.assertEqual(response.status_code, 200)
         
     def test_post_quiz(self):
-        response = self.client.post(reverse('quiz-list'), {'name': 'Basic Test Quiz'}, format='json')
-        # different syntax for sample post
-        self.assertEqual(response.status_code, 201)
-        # 201 means "good, more data added"
-        self.assertEqual(Quiz.objects.count(), 2)
-        self.assertEqual(Quiz.objects.get().name, "Basic Test Quiz")
-        
-        new_quiz = Quiz.objects.get(name="Basic Test Quiz")
-        self.assertEqual(new_quiz.name, "Basic Test Quiz")
+        self.client.force_authenticate(user=self.test_user)
+
+        response = self.client.post(
+            reverse('quizzes-list'),
+            {
+                'name': 'new quiz test',
+                'questions': []
+            },
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, 201, response.data)
+
+        new_quiz = Quiz.objects.get(name='new quiz test')
+        self.assertEqual(new_quiz.teacher, self.test_user)
