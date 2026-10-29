@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 class CustomUser(AbstractUser):
+    username = models.CharField(max_length=20, unique=True, blank=False)
     email = models.EmailField(unique=True, blank=False)
     USER_TYPE_CHOICES = [
         ("STUDENT", "Student"),
